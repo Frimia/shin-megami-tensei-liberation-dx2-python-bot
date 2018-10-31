@@ -28,7 +28,7 @@ class API(object):
 		self._tm=1
 		self.platform=1
 		self.gender=random.randint(0,1)
-		self.check_code='1.4.1'
+		self.check_code='1.6.0'
 		self.ek=None
 		self.used_acts=[]
 		self.setRegion()
@@ -65,15 +65,15 @@ class API(object):
 		self.transfer_id=id
 
 	def login(self):
-		self.GetUrl('check_code=1.4.1&platform=1&lang=1&bundle_id=com.sega.d2megaten.en&_tm_=1')
-		self.LoadInfo('lang=1&_tm_=2')
-		self.Login('account=%s&uuid=%s&secure_id=%s&check_code=1.4.1&lang=1&platform=%s&country=DE&_tm_=3'%(self.account,self.uuid,self.secure_id,self.platform))
-		self.SNEntry('basic_info=iPadAir2+%3a+iPad5%2c4&_tm_=4')
-		gems=self.Home('is_ar=0&_tm_=5')['usr']['cp']
+		self.GetUrl('check_code={}&platform={}&lang={}&bundle_id={}&_tm_={}'.format('1.6.0','1','1','com.sega.d2megaten.en',self._tm))
+		self.LoadInfo('lang={}&_tm_={}'.format('1',self._tm))
+		self.Login('account={}&uuid={}&secure_id={}&check_code={}&lang={}&platform={}&country={}&asset_bundle_version={}&_tm_={}'.format(self.account,self.uuid,self.secure_id,'1.6.0','1','1','DE','1.6.0.Kpv8LSfB2ZU6',self._tm))
+		self.SNEntry('basic_info={}&_tm_={}'.format('iPadAir2+%3a+iPad5%2c4',self._tm))
+		gems=self.Home('is_ar={}&_tm_={}'.format('0',self._tm))['usr']['cp']
 		#print gems
-		self.Notification('type=1&_tm_=6')
-		self.CpProductList('lang=1&platform=1&store=1&_tm_=7')
-		self.ChatEntry('_tm_=8')
+		self.Notification('type={}&_tm_={}'.format('1',self._tm))
+		self.ChatEntry('_tm_={}'.format(self._tm))
+		self.CpProductList('lang={}&platform={}&store={}&_tm_={}'.format('1','1','1',self._tm))
 
 	def urlencode(self,str):
 		return urllib.quote_plus(str,safe='=&').lower()
@@ -135,7 +135,7 @@ class API(object):
 		res= self.callAPI(1,param)
 		self.ek=res['ek']
 		self.user_id=res['user_id']
-		#self.gender=res['gnd']
+		self.gender=res['gnd']
 		return res
 
 	def SNEntry(self,param):
@@ -311,7 +311,7 @@ class API(object):
 		return self.callAPI(1,param)
 
 	def AccountTransferPasswordRegist(self,param):
-		return self.callAPI(2,{'param':self.crypter.encode(param,self.ek if self.ek else None)},'common/AccountTransferPasswordRegist.do')
+		return self.callAPI(2,param,'common/AccountTransferPasswordRegist.do')
 
 	def GateDungeon(self,param):
 		return self.callAPI(1,param)
@@ -366,7 +366,8 @@ class API(object):
 		pr=[]
 		for i in self.gifts['present_list']:
 			pr.append('uniq_id='+str(i['present_id']))
-		return self.PresentRecv('%s&type=0&part=-1&series_id=-1&_tm_=191'%('&'.join(pr)))
+		if len(pr)>=1:
+			return self.PresentRecv('%s&type=0&part=-1&series_id=-1&_tm_=191'%('&'.join(pr)))
 
 	def getColor(self,id):
 		return {'4':'green','3':'purple','2':'yellow','1':'red','0':'clear'}[str(id)]
@@ -982,8 +983,10 @@ class API(object):
 		hasfour=0
 		#passw=self.password
 		passw=self.tools.rndHex(6)
+		print passw
 		self.AccountTransferPasswordRegist('account={}&transfer_id={}&password={}&uuid={}&secure_id={}&_tm_={}'.format(self.account,self.transfer_id,self.crypter.md5(passw).upper(),self.uuid,self.secure_id,self._tm))
-		for i in self.Party('edit=1&quest_id=0&menu_id=0&gd_id=0&_tm_=%s'%(self._tm))['devils']:
+		#for i in self.Party('edit=1&quest_id=0&menu_id=0&gd_id=0&_tm_=%s'%(self._tm))['devils']:
+		for i in self.Party('quest_id=0&menu_id=70&gd_id=0&_tm_=%s'%(self._tm))['devils']:
 			#if i['id'] in [11760,12310]:	continue
 			if i['rarity']==4:
 				hasfour+=1
@@ -1124,10 +1127,10 @@ class API(object):
 			the_file.write('%s\n'%(unicode(d)))
 		
 	def rerollv2(self):
-		self.GetUrl('check_code=1.4.1&platform=1&lang=1&bundle_id=com.sega.d2megaten.en&_tm_={}'.format(self._tm))
+		self.GetUrl('check_code=1.6.0&platform=1&lang=1&bundle_id=com.sega.d2megaten.en&_tm_={}'.format(self._tm))
 		self.LoadInfo('lang=1&_tm_={}'.format(self._tm))
 		self.RegistAccount('platform=1&country=DE&lang=1&_tm_={}'.format(self._tm))
-		names=self.Login('account=%s&uuid=%s&secure_id=%s&check_code=1.4.1&lang=1&platform=%s&country=DE&_tm_=%s'%(self.account,self.uuid,self.secure_id,self.platform,self._tm))['rand_names']
+		names=self.Login('account=%s&uuid=%s&secure_id=%s&check_code=1.6.0&lang=1&platform=%s&country=DE&_tm_=%s'%(self.account,self.uuid,self.secure_id,self.platform,self._tm))['rand_names']
 		nonce=self.SNEntry('basic_info=iPadAir2+%3a+iPad5%2c4&_tm_={}'.format(self._tm))['nonce']
 		self.GetBaseData('type=data1&_tm_={}'.format(self._tm))
 		self.SNTest('jws=&device_info=&status_code=-5000&nonce={}&_tm_={}'.format(nonce,self._tm))
@@ -1416,10 +1419,10 @@ class API(object):
 		return self.callAPI(2,'account=%s&transfer_id=%s&password=%s&uuid=%s&secure_id=%s&_tm_=%s'%(self.account,self.transfer_id,self.crypter.md5(passw).upper(),self.uuid,self.secure_id,self._tm),'common/AccountTransferPasswordRegist.do')
 
 	def reroll(self,extend=False):
-		self.GetUrl('check_code={}&platform={}&lang={}&bundle_id={}&_tm_={}'.format('1.4.1','1','1','com.sega.d2megaten.en',self._tm))
+		self.GetUrl('check_code={}&platform={}&lang={}&bundle_id={}&_tm_={}'.format('1.6.0','1','1','com.sega.d2megaten.en',self._tm))
 		self.LoadInfo('lang={}&_tm_={}'.format('1',self._tm))
 		self.RegistAccount('platform={}&country={}&lang={}&_tm_={}'.format('1','DE','1',self._tm))
-		names=self.Login('account={}&uuid={}&secure_id={}&check_code={}&lang={}&platform={}&country={}&_tm_={}'.format(self.account,self.uuid,self.secure_id,'1.4.1','1','1','DE',self._tm))['rand_names']
+		names=self.Login('account={}&uuid={}&secure_id={}&check_code={}&lang={}&platform={}&country={}&_tm_={}'.format(self.account,self.uuid,self.secure_id,'1.6.0','1','1','DE',self._tm))['rand_names']
 		nonce=self.SNEntry('basic_info={}&_tm_={}'.format('iPadAir2+%3a+iPad5%2c4',self._tm))['nonce']
 		self.GetBaseData('type={}&_tm_={}'.format('data1',self._tm))
 		self.SNTest('jws={}&device_info={}&status_code={}&nonce={}&_tm_={}'.format('','','-5000',nonce,self._tm))
