@@ -1,6 +1,5 @@
 from api import API
 import random
-from prox import prox
 
 while(1):
 	try:
